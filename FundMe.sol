@@ -4,9 +4,14 @@ pragma solidity >=0.6.0 <0.9.0;
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 
 contract FundMe{
+    address public owner;
+
+    constructor() public{
+        owner = msg.sender;
+    }
 
     mapping(address => uint256) public fundMap;
-
+    //working in gwei coin    
     //function that accepts payment
     //payable: this function pays for things
     function fund() public payable{
@@ -28,8 +33,18 @@ contract FundMe{
 
     function getConversionRate(uint256 ethAmount) public view returns(uint256){
         uint256 ethPrice = getPrice();
-        uint256 ethInUSD = (ethPrice * ethAmount) ;
+        uint256 ethInUSD = (ethPrice * ethAmount) / 1000000000000000000 ;
         return ethInUSD;
+    }
+
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function withdraw() payable onlyOwner public {
+        msg.sender.transfer(address(this).balance);
     }
 
 
