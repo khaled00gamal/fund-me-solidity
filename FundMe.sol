@@ -5,6 +5,7 @@ import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 
 contract FundMe{
     address public owner;
+    address[] public funders;
 
     constructor() public{
         owner = msg.sender;
@@ -16,6 +17,7 @@ contract FundMe{
     //payable: this function pays for things
     function fund() public payable{
         fundMap[msg.sender] += msg.value;
+        funders.push(msg.sender);
     }
 
     function getVersion() public view returns(uint256){
@@ -45,6 +47,13 @@ contract FundMe{
 
     function withdraw() payable onlyOwner public {
         msg.sender.transfer(address(this).balance);
+        for(uint256 i=0;i<funders.length;i++){
+            address currentFunder = funders[i];
+            fundMap[currentFunder] = 0; 
+        }
+
+        //reset funders array
+        funders = new address[](0);
     }
 
 
